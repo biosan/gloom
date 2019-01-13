@@ -1,23 +1,27 @@
 FROM golang:1.10.7-alpine3.8 AS builder
 
-ENV SRC_DIR=/go/src/github.com/biosan/gloom
+ENV REPO='github.com/biosan/gloom'
+
+WORKDIR /go/src/${REPO}
 
 # Install git
-RUN apk add git
+RUN apk --no-cache add git
 # Install HTTP mux (gorilla/mux)
 RUN go get "github.com/gorilla/mux"
+
 # Copy source code
-ADD . $SRC_DIR
+COPY . .
 # Build gloomAPI
-RUN cd $SRC_DIR/api; go build -o api; cp api /.
+RUN go build -o /api ${REPO}/api
 
 
 FROM alpine:3.8
 
 WORKDIR /api
 # Copy compiled binary
-COPY --from=builder /api ./api
+COPY --from=builder /api .
 
-EXPOSE 8888
+ENV GLOOMAPI_PORT=80
+EXPOSE ${GLOOMAPI_PORT}
 
 ENTRYPOINT ["./api"]
