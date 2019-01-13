@@ -4,6 +4,7 @@ import (
     "encoding/json"
     "log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/biosan/gloom"
@@ -79,6 +80,13 @@ func main() {
     router.HandleFunc("/query", QueryItemEndpoint).Methods("POST")
     router.HandleFunc("/create", CreateBloomFilterEndpoint).Methods("POST")
 	//router.HandleFunc("/nuke", NukeBloomFilterEndpoint).Methods("DELETE")
-	// TODO : Make 
-    log.Fatal(http.ListenAndServe(":8888", router))
+
+	// Get port from enviroment variable
+	port := os.Getenv("GLOOMAPI_PORT")
+	if port == "" {
+		port = "8888"  // Default port
+	}
+	port = ":" + port
+
+	log.Fatal(http.ListenAndServe(port, router))
 }
